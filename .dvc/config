@@ -1,0 +1,6 @@
+[core]
+    remote = shreya-remote
+['remote "shreya-remote"']
+    url = s3://shreya-mlops-bucket
+['remote "s3remote"']
+    url = s3://shreya-r-bucket
