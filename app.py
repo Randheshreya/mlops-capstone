@@ -1,14 +1,27 @@
+# app.py
 from fastapi import FastAPI
+from pydantic import BaseModel
 import joblib
+import pandas as pd
 
-# TODO: Load model from MLflow instead of local pkl
-model = joblib.load("model.pkl")
+# Define input schema for request body
+class InputData(BaseModel):
+    area: float  # This should match your training feature
 
-app = FastAPI()
+# Load the trained model (from local .pkl)
+model = joblib.load("model.pkl")  # Make sure the path is correct
 
+# Initialize FastAPI app
+app = FastAPI(title="Housing Price Predictor API")
+
+# Define /predict endpoint
 @app.post("/predict")
-def predict(data: dict):
-    # TODO: Handle proper preprocessing
-    area = data["area"]
-    prediction = model.predict([[area]])[0]
-    return {"prediction": prediction}
+def predict(data: InputData):
+    # Convert input to DataFrame for model
+    df = pd.DataFrame([data.dict()])
+    
+    # Make prediction
+    prediction = model.predict(df)
+    
+    # Return as JSON
+    return {"prediction": prediction.tolist()}
