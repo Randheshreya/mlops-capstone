@@ -1,4 +1,3 @@
-# src/train.py
 import os
 import mlflow
 import mlflow.sklearn
@@ -9,10 +8,12 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import joblib
 
+
 # Ensure MLflow points to the local server UI (optional but safe)
 mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
 EXPERIMENT_NAME = "mlops-capstone"
+
 
 def main():
     mlflow.set_experiment(EXPERIMENT_NAME)
@@ -35,7 +36,7 @@ def main():
         mlflow.log_param("epochs", epochs)
         mlflow.log_param("model_type", "LinearRegression")
 
-        # Train
+        # Train model
         model = LinearRegression()
         model.fit(X_train, y_train)
 
@@ -51,21 +52,22 @@ def main():
         os.makedirs("models", exist_ok=True)
         joblib.dump(model, "models/model.pkl")
 
-        # Infer signature & input example so MLflow shows artifact properly
+        # Infer signature & input example for MLflow
         signature = infer_signature(X_train, model.predict(X_train))
         input_example = X_test.head(5)
 
-        # Log model artifact (this will appear under Artifacts in MLflow UI)
+        # Log model artifact (will appear under Artifacts in MLflow UI)
         mlflow.sklearn.log_model(
             sk_model=model,
-            name="linear_regression_model",  # correct argument
+            name="linear_regression_model",
             signature=signature,
             input_example=input_example,
-)
+        )
 
         run_id = run.info.run_id
         exp_id = run.info.experiment_id
         print(f"Run completed. experiment_id={exp_id}, run_id={run_id}")
+
 
 if __name__ == "__main__":
     main()
